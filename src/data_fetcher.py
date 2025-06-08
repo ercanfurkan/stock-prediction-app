@@ -12,3 +12,6 @@ def fetch_stock_data(ticker: str) -> pd.DataFrame:
     response = requests.get(url, headers=headers)
     response.raise_for_status()
     return pd.read_csv(url)
+
+
+build_tiingo_url("aapl")
