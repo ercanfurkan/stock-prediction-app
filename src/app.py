@@ -1,4 +1,5 @@
 import dash
+import os
 from dash import html,dcc
 import dash_bootstrap_components as dbc
 from data_fetcher import fetch_stock_data,filter_date_data
@@ -201,4 +202,5 @@ def update_graphs(n_clicks, ticker,date_range):
 
 # Run the app
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 10000)) 
+    app.run(debug=True,host="0.0.0.0",port=port)
