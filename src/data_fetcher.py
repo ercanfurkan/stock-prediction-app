@@ -3,6 +3,7 @@ import pandas as pd
 from config import API_KEY, BASE_URL, START_DATE, END_DATE
 from datetime import datetime,timedelta
 from data_utils import preprocess_data,add_mov_avgs,add_technical_indicators
+from db_connection import insert_stock_data 
 
 def build_tiingo_url(ticker: str, fmt="csv") -> str:
     return f"{BASE_URL}{ticker}/prices?startDate={START_DATE}&endDate={END_DATE}&format={fmt}&token={API_KEY}"
@@ -22,7 +23,11 @@ def fetch_stock_data(ticker) -> pd.DataFrame:
 
     fetched_data = add_mov_avgs(fetched_data)
     fetched_data = add_technical_indicators(fetched_data)
-    return fetched_data
+
+    insert_stock_data(fetched_data,ticker)
+
+
+    #return fetched_data
 
 
 

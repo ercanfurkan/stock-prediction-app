@@ -5,7 +5,8 @@ from data_fetcher import fetch_stock_data,filter_date_data
 import plotly.graph_objects as go
 from dash.dependencies import Input,Output,State
 import time
-
+from db_connection import get_data_from_db
+import config
 
 # Initialize Dash app with Bootstrap theme
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -135,7 +136,7 @@ app.layout = dbc.Container([
 def update_graphs(n_clicks, ticker,date_range):
     #To simulate a loading effect!!
     #It can be removed
-    time.sleep(2)
+    #time.sleep(2)
     if not ticker:
         return go.Figure()  # return empty figure if input is empty
     
@@ -151,10 +152,15 @@ def update_graphs(n_clicks, ticker,date_range):
     else:
         df = filter_date_data(df,date_range)
     """
-    df = filter_date_data(fetch_stock_data(ticker),date_range)
 
-    #If wrong ticker name or df is empty for some reason
+    df = get_data_from_db(ticker,config.START_DATE,config.END_DATE)
+    
+    #If df is empty aka not found anything in database
+    #Or df is not empty but the last day is not there
+    #Go check the data and add it to the database
     if df is None or df.empty:
+        print("None")
+        fetch_stock_data(ticker)
         fig = go.Figure()
         fig.update_layout(title="No data found", xaxis_title="", yaxis_title="")
         #Return empty figures for all graphs
@@ -163,30 +169,30 @@ def update_graphs(n_clicks, ticker,date_range):
     # Create line chart
     price_fig = go.Figure()
     #Add Prices
-    price_fig.add_trace(go.Scatter(x=df["date"], y=df["adjClose"], mode='lines', name=ticker.upper()+" Adj Close" ))
-    price_fig.add_trace(go.Scatter(x=df["date"], y=df["adjHigh"], mode='lines', name=ticker.upper() +" Adj High"))
-    price_fig.add_trace(go.Scatter(x=df["date"], y=df["adjLow"], mode='lines', name=ticker.upper() +" Adj Low"))
-    price_fig.add_trace(go.Scatter(x=df["date"], y=df["MA-5"], mode='lines', name=ticker.upper() +" MA-5"))
-    price_fig.add_trace(go.Scatter(x=df["date"], y=df["MA-15"], mode='lines', name=ticker.upper() +" MA-15"))
-    price_fig.add_trace(go.Scatter(x=df["date"], y=df["MA-30"], mode='lines', name=ticker.upper() +" MA-30"))
+    price_fig.add_trace(go.Scatter(x=df.reset_index()["date"], y=df["adjclose"], mode='lines', name=ticker.upper()+" Adj Close" ))
+    price_fig.add_trace(go.Scatter(x=df.reset_index()["date"], y=df["adjhigh"], mode='lines', name=ticker.upper() +" Adj High"))
+    price_fig.add_trace(go.Scatter(x=df.reset_index()["date"], y=df["adjlow"], mode='lines', name=ticker.upper() +" Adj Low"))
+    price_fig.add_trace(go.Scatter(x=df.reset_index()["date"], y=df["ma_5"], mode='lines', name=ticker.upper() +" MA-5"))
+    price_fig.add_trace(go.Scatter(x=df.reset_index()["date"], y=df["ma_15"], mode='lines', name=ticker.upper() +" MA-15"))
+    price_fig.add_trace(go.Scatter(x=df.reset_index()["date"], y=df["ma_30"], mode='lines', name=ticker.upper() +" MA-30"))
     price_fig.update_layout(title=f"{ticker.upper()} Stock Prices", xaxis_title="Date", yaxis_title="Price (USD)")
 
     vol_fig = go.Figure()
     #Add Volume
-    vol_fig.add_trace(go.Scatter(x=df["date"],y=df["adjVolume"],mode="lines",name=ticker.upper() +" Adj Volume"))
+    vol_fig.add_trace(go.Scatter(x=df.reset_index()["date"],y=df["adjvolume"],mode="lines",name=ticker.upper() +" Adj Volume"))
     vol_fig.update_layout(title=f"{ticker.upper()} Stock Volume", xaxis_title="Date", yaxis_title="Price (USD)")
 
     # Graph 3: Technical Indicators
     tech_fig = go.Figure()
-    tech_fig.add_trace(go.Scatter(x=df["date"], y=df["RSI"], name="RSI"))
-    tech_fig.add_trace(go.Scatter(x=df["date"], y=df["MACD"], name="MACD"))
-    tech_fig.add_trace(go.Scatter(x=df["date"], y=df["MACD_signal"], name="MACD Signal"))
+    tech_fig.add_trace(go.Scatter(x=df.reset_index()["date"], y=df["rsi"], name="RSI"))
+    tech_fig.add_trace(go.Scatter(x=df.reset_index()["date"], y=df["macd"], name="MACD"))
+    tech_fig.add_trace(go.Scatter(x=df.reset_index()["date"], y=df["macd_signal"], name="MACD Signal"))
     tech_fig.update_layout(title="Technical Indicators", yaxis_title="Value")
 
     #Graph 4: Predictions - Place Holder for now!!
     pred_fig = go.Figure()
-    pred_fig.add_trace(go.Scatter(x=df["date"], y=df["adjClose"], name="Actual"))
-    pred_fig.add_trace(go.Scatter(x=df["date"], y=df["adjClose"].shift(-1), name="Predicted", line=dict(dash='dot')))
+    pred_fig.add_trace(go.Scatter(x=df.reset_index()["date"], y=df["adjclose"], name="Actual"))
+    pred_fig.add_trace(go.Scatter(x=df.reset_index()["date"], y=df["adjclose"].shift(-1), name="Predicted", line=dict(dash='dot')))
     pred_fig.update_layout(title="Placeholder Prediction")
 
 
