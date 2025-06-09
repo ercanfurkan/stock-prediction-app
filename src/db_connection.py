@@ -2,13 +2,17 @@ import psycopg2
 from psycopg2.extras import execute_values
 import config
 import pandas as pd 
+import os
+
+# Do not expose your Neon credentials to the browser
+
 
 DB_PARAMS = {
     "host" : config.HOST,
     "dbname" :config.DATABASE,
     "user" :config.USER,
     "password" :config.PASSWORD,
-    "port":5432,
+    "port":config.PORT,
     "sslmode" :"require"
 }
 

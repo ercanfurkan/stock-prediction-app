@@ -6,8 +6,10 @@ BASE_URL = "https://api.tiingo.com/tiingo/daily/"
 START_DATE = "2000-01-01"
 END_DATE = str(datetime.now().date())
 #Connection to Database
-HOST = "db.sgdsaydxjgirneoqkvvf.supabase.co"
+HOST = "ep-flat-glade-a9m4pyfx-pooler.gwc.azure.neon.tech"
 PORT = 5432
-DATABASE = "postgres"
-USER = "postgres"
-PASSWORD = "DRXb6G1Fl0uZrDDs"
+DATABASE = "neondb"
+USER = "neondb_owner"
+PASSWORD = "npg_7d4IcHCykbqS"
+
+
