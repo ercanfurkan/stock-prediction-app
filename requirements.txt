@@ -8,3 +8,4 @@ dash
 dash-bootstrap-components
 psycopg2-binary
 ta
+python-dotenv==1.0.1
